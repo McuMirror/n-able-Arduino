@@ -25,21 +25,23 @@ extern "C" {
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
 {
     Serial.printf("Task: %s, stack overflow\n", pcTaskName);
+    dump_call_stack();
+    delay(50);
     NVIC_SystemReset();
+    while (1){}
 }
 
 void vApplicationMallocFailedHook(void)
 {
-    Serial.println("Malloc failed");
+    Serial.printf("\n=== MEMORY ALLOCATION FAILED ===\n");
+    dump_call_stack();
+    delay(50);
     NVIC_SystemReset();
+    while (1){}
 }
 
 void vApplicationIdleHook(void) {
     NRF_WDT->RR[0] = WDT_RR_RR_Reload;
-#ifdef USE_TINYUSB
-extern uint32_t tud_cdc_write_flush (void);
-    tud_cdc_write_flush();
-#endif
 }
 
 UBaseType_t nimble_port_freertos_get_ll_hwm(void) __attribute__((weak));

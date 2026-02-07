@@ -62,7 +62,7 @@ void loop( void ) ;
 #endif
 
 #ifdef USE_TINYUSB
-  #include "Adafruit_TinyUSB_Core.h"
+  #include "Adafruit_USBD_CDC.h"
 #endif
 
 // Include board variant
@@ -160,6 +160,8 @@ void loop( void ) ;
 #ifdef __cplusplus
 #include "Uart.h"
 #include "rtos.h"
+void check_and_report_fault();
+void dump_call_stack();
 #endif // __cplusplus
 
 #endif // Arduino_h
