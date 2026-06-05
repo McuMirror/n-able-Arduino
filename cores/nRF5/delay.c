@@ -34,7 +34,8 @@ void yield(void)
 
 uint32_t millis( void )
 {
-  return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
+  uint64_t ticks = (uint64_t)xTaskGetTickCount() * 1000ULL;
+  return (uint32_t)(ticks / configTICK_RATE_HZ);
 }
 
 uint32_t micros( void )
