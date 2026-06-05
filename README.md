@@ -143,6 +143,7 @@ For example: `'-DCONFIG_MAIN_TASK_STACK_SIZE=512'` This will set the main task s
  * `CONFIG_WDT_TIMEOUT_SECONDS` - set the number of seconds before the watchdog times out (0 = disable watchdog, default = 0).
  * `CONFIG_PRINTF_BUFFER_SIZE` - set the size of the buffer used for `printf` and `Serial.printf` (default 128 bytes, set to 1 for no buffer).
  * `CONFIG_PRINTF_BUFFER_INDEX` - set the FreeRTOS storage pointer index used for managing the `printf` buffer (default 0).
+ * `USB_CDC_DEFAULT_SERIAL` - For devices with USB CDC support, this enables the USB CDC serial by default, set to 0 to disable (default 1), Serial will be redirected to the UART if this is disabled.
  * Nimble configuration options can also be included, the list of those can be found [here](https://h2zero.github.io/NimBLE-Arduino/md__command_line_config.html)
  * Other compiler options or definitions for other libraries can also be specified.
 
@@ -167,10 +168,11 @@ There are a few useful functions available to help with your project.
 ```
 
 ## Bootloader
-Currently only some boards have Adafruit bootloaders available which are provided as options. You may choose to use the bootloader or none.
-The provided Adafruit bootloaders have no softdevice, if you currently are using the softdevice based Adafruit bootloader on your nRF52 board you will need to update it to the one provided by selecting it from the boards menu and clicking `Burn Bootloader`.
+There are currently three bootloader options available for use with this core, the Adafruit BLE bootloader, the Adafruit serial bootloader, or no bootloader.
 
-For boards without the Adafruit bootloader option clicking `Burn Bootloader` will simply erase the flash memory on the device. This is required if you have any bootloader flashed already.
+On boards that come with Adafruit bootloaders it will be the default option and will work out of the box.
+
+Other boards can optionally use the Adafruit bootloader by selecting it from the tools menu and clicking `Burn Bootloader` (requires a compatible SWD programmer such as the Segger J-Link). This will install the Adafruit bootloader on the device, which will allow you to upload firmware over USB using the adafruit-nrfutil uploader option. If you do not want to use the Adafruit bootloader you can select "No Bootloader" from the tools menu and click `Burn Bootloader` to erase any existing bootloader on the device.
 
 ## Important notes
  * The last four pages of flash, before the bootloader (if applicable) are reserved for user storage and bond information storage (2 pages each).
