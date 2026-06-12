@@ -111,6 +111,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     quantity = SERIAL_BUFFER_SIZE;
   }
 
+  uint32_t start;
   size_t byteRead = 0;
   rxBuffer.clear();
 
@@ -133,8 +134,12 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     }
 
     _p_twi->TASKS_RESUME = 0x1UL;
-
-    while (!_p_twi->EVENTS_RXDREADY && !_p_twi->EVENTS_ERROR);
+    start = millis();
+    while (!_p_twi->EVENTS_RXDREADY && !_p_twi->EVENTS_ERROR) {
+      if (millis() - start >= 3) {
+        return 0;
+      }
+    }
 
     if (_p_twi->EVENTS_ERROR)
     {
@@ -150,14 +155,24 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
   {
     this->suspended = false;
     _p_twi->TASKS_STOP = 0x1UL;
-    while(!_p_twi->EVENTS_STOPPED);
+    start = millis();
+    while(!_p_twi->EVENTS_STOPPED) {
+      if (millis() - start >= 3) {
+        return 0;
+      }
+    }
     _p_twi->EVENTS_STOPPED = 0x0UL;
   }
   else
   {
     this->suspended = true;
     _p_twi->TASKS_SUSPEND = 0x1UL;
-    while(!_p_twi->EVENTS_SUSPENDED);
+    start = millis();
+    while(!_p_twi->EVENTS_SUSPENDED) {
+      if (millis() - start >= 3) {
+        return 0;
+      }
+    }
     _p_twi->EVENTS_SUSPENDED = 0x0UL;
   }
 
@@ -191,6 +206,7 @@ void TwoWire::beginTransmission(uint8_t address) {
 uint8_t TwoWire::endTransmission(bool stopBit)
 {
   transmissionBegun = false;
+  uint32_t start;
 
   // Start I2C transmission
   _p_twi->ADDRESS = txAddress;
@@ -202,7 +218,12 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   {
     _p_twi->TXD = txBuffer.read_char();
 
-    while(!_p_twi->EVENTS_TXDSENT && !_p_twi->EVENTS_ERROR);
+    start = millis();
+    while(!_p_twi->EVENTS_TXDSENT && !_p_twi->EVENTS_ERROR) {
+      if (millis() - start >= 10) {
+        return 4;
+      }
+    }
 
     if (_p_twi->EVENTS_ERROR)
     {
@@ -215,13 +236,23 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   if (stopBit || _p_twi->EVENTS_ERROR)
   {
     _p_twi->TASKS_STOP = 0x1UL;
-    while(!_p_twi->EVENTS_STOPPED);
+    start = millis();
+    while(!_p_twi->EVENTS_STOPPED) {
+      if (millis() - start >= 3) {
+        return 4;
+      }
+    }
     _p_twi->EVENTS_STOPPED = 0x0UL;
   }
   else
   {
     _p_twi->TASKS_SUSPEND = 0x1UL;
-    while(!_p_twi->EVENTS_SUSPENDED);
+    start = millis();
+    while(!_p_twi->EVENTS_SUSPENDED) {
+      if (millis() - start >= 3) {
+        return 4;
+      }
+    }
     _p_twi->EVENTS_SUSPENDED = 0x0UL;
   }
 
